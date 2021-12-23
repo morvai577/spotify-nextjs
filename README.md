@@ -18,3 +18,11 @@ You can start editing the page by modifying `pages/index.tsx`. The page auto-upd
 [API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
 
 The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+
+## Design Decisions
+
+### 100vw width and 100 vh height
+This means our app will take up the full screen and no scrolling will be required for our app.
+
+### Absolute positioning
+This app uses absolute positioning and to achieve responsiveness. You will need to create a mobile and a desktop component for each view. This technique of creating responsive apps is used when you don't want to write too much CSS. The mobile or desktop component will be toggled based on a media query hook.
