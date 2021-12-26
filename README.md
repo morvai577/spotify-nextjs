@@ -1,4 +1,4 @@
-## spotify-nextjs
+# spotify-nextjs
 
 A spotify client built using Next.js. This project is purely for learning purposes, so that I can learn how to build a modern full-stack app from start to finish.
 
