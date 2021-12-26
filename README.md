@@ -106,3 +106,6 @@ import NextLink from "next/link";
     </LinkOverlay>
 </NextLink>
 ```
+
+### Using Prisma in the project
+This project uses Prisma in a serverless environment because Vercel's APIs are serverless and Prisma is not always running.  
