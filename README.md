@@ -108,4 +108,7 @@ import NextLink from "next/link";
 ```
 
 ### Using Prisma in the project
-This project uses Prisma in a serverless environment because Vercel's APIs are serverless and Prisma is not always running.  
+This project uses Prisma in a serverless environment because Vercel's APIs are serverless and Prisma is not always running.
+
+### Purpose of using a wrapper lib i.e. `fetcher.ts`
+To abstract away the HTTP fetching mechanism, because the client side uses some hooks that requires some of these mechanisms. So in order to keep it simple, good to have an abstraction in between.
