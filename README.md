@@ -108,4 +108,38 @@ import NextLink from "next/link";
 ```
 
 ### Using Prisma in the project
-This project uses Prisma in a serverless environment because Vercel's APIs are serverless and Prisma is not always running.  
+This project uses Prisma in a serverless environment because Vercel's APIs are serverless and Prisma is not always running.
+
+### Purpose of using a wrapper lib i.e. `fetcher.ts`
+To abstract away the HTTP fetching mechanism, because the client side uses some hooks that requires some of these mechanisms. So in order to keep it simple, good to have an abstraction in between.
+
+### Conditionally opt in/out of global layout component
+The authentication pages do not require the layout component that contains all the other components of the app as it its children. So to opt out of it, do the following:
+
+1) Add a unique property to the auth pages:
+```tsx
+...
+Signin.authPage = true;
+
+export default Signin;
+```
+
+2) Add conditional rendering to `_app.tsx`
+```tsx
+const MyApp = ({ Component, pageProps }) => {
+  return (
+    <ChakraProvider theme={theme}>
+      {Component.authPage ? (
+        <Component {...pageProps} />
+      ) : (
+        <PlayerLayout>
+          <Component {...pageProps} />
+        </PlayerLayout>
+      )}
+    </ChakraProvider>
+  );
+};
+
+export default MyApp;
+```
+
