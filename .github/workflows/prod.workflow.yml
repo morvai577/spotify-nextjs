@@ -1,0 +1,38 @@
+name: Master Workflow - Build and deploy to production
+on:
+  pull_request:
+    types: closed
+    branches:
+      - master
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      #add env file to .env.local
+      - name: Set Env Vars on Vercel Project
+        uses: dkershner6/vercel-set-env-action@v1
+        with:
+          token: ${{ secrets.VERCEL_TOKEN }}
+          projectName: trax # project name in Vercel
+          envVariableKeys: DATABASE_URL,SHADOW_DATABASE_URL
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TARGET_DATABASE_URL: preview,development,production
+          TYPE_DATABASE_URL: plain
+          SHADOW_DATABASE_URL: ${{ secrets.SHADOW_DATABASE_URL }}
+          TARGET_SHADOW_DATABASE_URL: preview,development,production
+          TYPE_SHADOW_DATABASE_URL: plain
+
+      # deploy app to vercel
+      - name: deploy site to vercel
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
+          vercel-args: '--prod' #Optional
+          vercel-org-id: ${{ secrets.ORG_ID}}  #Required
+          vercel-project-id: ${{ secrets.PROJECT_ID}} #Required
