@@ -14,7 +14,11 @@ jobs:
           envVariableKeys: DATABASE_URL,SHADOW_DATABASE_URL
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TARGET_DATABASE_URL: preview,development,production
+          TYPE_DATABASE_URL: plain
           SHADOW_DATABASE_URL: ${{ secrets.SHADOW_DATABASE_URL }}
+          TARGET_SHADOW_DATABASE_URL: preview,development,production
+          TYPE_SHADOW_DATABASE_URL: plain
 
       # deploy app to vercel
       - name: deploy site to vercel
