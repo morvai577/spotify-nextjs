@@ -3,15 +3,18 @@ import { Box, Text, Flex } from "@chakra-ui/layout";
 import { Image } from "@chakra-ui/react";
 import GradientLayout from "../components/gradientLayout";
 import prisma from "../lib/prisma";
+import { useMe } from "../lib/hooks";
 
 const Home = ({ artists }) => {
+  const { user } = useMe();
+
   return (
     <GradientLayout
       roundImage
       color="yellow"
       subtitle="profile"
-      title="Vai Mor"
-      description="15 public playlists"
+      title={`${user?.firstName} ${user?.lastName}`}
+      description={`${user?.playlistsCount} public playlists`}
       image="https://media-exp1.licdn.com/dms/image/C5603AQHUnPNMt3bitA/profile-displayphoto-shrink_800_800/0/1577415249606?e=1646870400&v=beta&t=cHalC5gBOnVBoUxuaKJsz0sCqsYOK24hp7J9knGWDRU"
     >
       <Box color="white" paddingX="40px">
