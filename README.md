@@ -143,3 +143,50 @@ const MyApp = ({ Component, pageProps }) => {
 export default MyApp;
 ```
 
+### Playlist folder in pages directory
+- This folder contains all pages to do with playlist.
+- We are using this because each playlist in this app will have its own unique route e.g. ``. This will require dynamic routing.
+
+### Dynamic routing
+In Next.js you can add brackets to a page (`[param]`) to create a dynamic route (a.k.a. url slugs, pretty urls, and others).
+
+Consider the following page:
+```tsx
+<NextLink
+    href={{
+      pathname: '/playlist/[id]',
+      query: { id: playlist.id },
+    }}
+    passHref
+>
+```
+
+Any route like `/playlist/1`, `/playlist/2`, etc. will be matched by `pages/playlist/[id].tsx`. The matched path parameter will be sent as a query parameter to the page, and it will be merged with the other query parameters.
+
+For example, the route `/playlist/1` will have the following `query` object:
+```json
+{ "id": "1" }
+```
+
+### Server Side Rendering (SSR)
+This option for data fetching allows Next.js to pre-render the page on each request using the data returned by `getServerSideProps`.
+
+To decide whether to use this option, figure out whether the data changes often. If it does then this is a good option, otherwise if it doesn't then it is wasteful as you are making all those requests for no reason.
+
+#### Example:
+Fetch top played artist implementation, in  [this commit](https://github.com/morvai577/spotify-nextjs/blob/362709d4b064e8f863b4daaf8fe36a3af479aa91/pages/index.tsx)
+1. Define new async function called `getServerSideProps` . Note: This function must always return something. This function is used to inject required props to the `Home` functional component.
+2. Fetch data from prisma
+3. Return prisma data as props object containing artists as its value.
+
+[Documentation](https://nextjs.org/docs/basic-features/data-fetching#getserversideprops-server-side-rendering)
+
+### Get current user
+- First we need to add a method that gets the current user by verifying the current token.
+- This method is defined in the `auth` library:
+```ts
+export const validateToken = (token) => {
+  const user = jwt.verify(token, 'hello')
+  return user
+}
+```
