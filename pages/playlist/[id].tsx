@@ -37,12 +37,26 @@ const Playlist = ({ playlist }) => {
 };
 
 export const getServerSideProps = async ({ query, req }) => {
-  const { id } = validateToken(req.cookies.TRAX_ACCESS_TOKEN);
+  let user;
+
+  try {
+    // Try getting user via token (it may have expired)
+    user = validateToken(validateToken(req.cookies.TRAX_ACCESS_TOKEN));
+  } catch (e) {
+    // If token expired or is not valid, redirect user to login
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/signin",
+      },
+    };
+  }
+
   const [playlist] = await prisma.playlist.findMany({
     where: {
       // Add + below to convert query string to a number
       id: +query.id,
-      userId: id,
+      userId: user.id,
     },
     // include means the same thing as a join
     include: {
