@@ -190,3 +190,34 @@ export const validateToken = (token) => {
   return user
 }
 ```
+
+### Using map method to render the same UI for a collection
+The following example demonstrates how to render table rows for each song in the collection
+
+#### Example:
+```tsx
+{songs.map((song, i) => (
+  /* For each song create a new table row */
+  <Tr
+    sx={{
+      transition: "all .3s ",
+      "&:hover": {
+        bg: "rgba(255, 255, 255, 0.1)",
+      },
+    }}
+    key={song.id}
+    cursor="cursor"
+  >
+    <Td>{i + 1}</Td>
+    <Td>{song.name}</Td>
+    <Td>{song.createdAt.toString()}</Td>
+    <Td>{song.duration}</Td>
+  </Tr>
+))}
+```
+### Managing global state on client side
+The application contains this player UI at the bottom:
+
+This particular UI element is present in all pages of the application. This player needs to be aware at all times what track is currently playing and what playlist it is playing the track from. So this requires a global state, one option is Redux but that will be overkill for this one particular use case of global state.
+
+

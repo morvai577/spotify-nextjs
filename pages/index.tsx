@@ -11,7 +11,7 @@ const Home = ({ artists }) => {
   return (
     <GradientLayout
       roundImage
-      color="yellow"
+      colour="yellow"
       subtitle="profile"
       title={`${user?.firstName} ${user?.lastName}`}
       description={`${user?.playlistsCount} public playlists`}
