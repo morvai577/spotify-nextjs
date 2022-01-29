@@ -181,6 +181,8 @@ Fetch top played artist implementation, in  [this commit](https://github.com/mor
 
 [Documentation](https://nextjs.org/docs/basic-features/data-fetching#getserversideprops-server-side-rendering)
 
+## Authentication via JWT and cookies
+
 ### Get current user
 - First we need to add a method that gets the current user by verifying the current token.
 - This method is defined in the `auth` library:
@@ -190,6 +192,25 @@ export const validateToken = (token) => {
   return user
 }
 ```
+
+### Redirect user if cannot be identified or if token has expired
+```tsx
+let user;
+
+  try {
+    // Try getting user via token (it may have expired)
+    user = validateToken(validateToken(req.cookies.TRAX_ACCESS_TOKEN));
+  } catch (e) {
+    // If token expired or is not valid, redirect user to login
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/signin",
+      },
+    };
+  }
+```
+Notice we are returning a `redirect` object, this is provided by [NextJS](https://nextjs.org/docs/api-reference/next.config.js/redirectshttps://nextjs.org/docs/api-reference/next.config.js/redirects).
 
 ### Using map method to render the same UI for a collection
 The following example demonstrates how to render table rows for each song in the collection
@@ -219,5 +240,38 @@ The following example demonstrates how to render table rows for each song in the
 The application contains this player UI at the bottom:
 
 This particular UI element is present in all pages of the application. This player needs to be aware at all times what track is currently playing and what playlist it is playing the track from. So this requires a global state, one option is Redux but that will be overkill for this one particular use case of global state.
+
+Instead, this project uses a lightweight version of Redux, called [Easy Peasy](https://easy-peasy.vercel.app).
+
+All state management code can be seen in `\lib\store.ts` file
+
+States we want to keep track off:
+
+    1. activeSongs (an array)
+    2. activeSong
+
+Actions we need:
+
+    1. Change active songs
+    2. Change active song
+
+You will see in the store method, the following:
+```ts
+state.activeSongs = payload;
+```
+This is an example of an [immer](https://github.com/immerjs/immer) operation, which allows you to write code as above, but under the hood converts the operation into an immutable update.
+
+In order to use this store for managing global state for your app (`_app.tsx`), you need to first wrap the full app under `StoreProvider` and pass a prop that points to the store created above:
+```tsx
+const MyApp = ({ Component, pageProps }) => {
+  return (
+    <ChakraProvider theme={theme}>
+      <StoreProvider store={store}>
+          ...
+```
+
+### How the applications actually plays music
+
+This is abstracted and handled by [react-howler](https://khoanguyen.me/react-howler/).
 
 
