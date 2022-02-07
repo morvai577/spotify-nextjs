@@ -284,4 +284,84 @@ Then we can retrieve this global state in our `player` component to get this dat
 
 This is abstracted and handled by [react-howler](https://khoanguyen.me/react-howler/).
 
+## Create a reference to native JS howler instance
 
+TODO: Why do we want to do this?
+
+To do this, we:
+
+* Create object reference via `useRef` hook, provided by React.
+* Set default value to `null`.
+* Attach it to React howler via `ref` prop.
+
+## Implementing functionality for player buttons and same time updating the UI
+
+### Next/Previous track buttons
+
+When a user clicks on the next or previous track buttons, we want to play the next or previous track. We have already implemented the UI in the `player` component. The remaining aspect is the functionality.
+
+To achieve this, callbacks have been defined and bound to the buttons:
+
+* `prevSong`
+  * Callback to play the previous song.
+  * One thing to make sure here is that when updating the track, we need to make sure the index of the current is set to the last song in the songs array if the current song is the first song in the array.
+  * If not, then we just decrement the index and set it to the previous track in the array.
+
+
+* `nextSong`
+  * Callback to play the next song.
+  * One thing to make sure here is that when updating the track, we need to check first if shuffle is enabled. If so, then we want to set the index to a random number between 0 and the length of the songs array. If not, then we just increment the index and set it to the next track in the array.
+  * Also, have to make sure when randomly setting the index that it is not the same as the current song. If it is, then we need to use recursion to re-call the callback until it is not the same as the current song's index.
+
+### When current song finishes playing
+
+#### Functionality
+When a song finishes playing, we want to play the next song. This is achieved using the `onEnd` callback. One thing to note is, this function:
+
+  * If repeat is on, the function sets the seek to 0.
+  * If repeat is off, the function will call `nextSong` to play the next song.
+
+#### UI
+When a song finishes playing, we want to update the UI to reflect the new song. This is achieved via:
+
+  * `setSeek(0)` to 0.
+
+### Show duration of current track
+
+#### Functionality
+Added `onLoad` callback that gets duration of current track using howler.
+
+#### UI
+Update UI using `setDuration`.
+
+### Seek track
+
+#### Functionality
+Howler's current seek method.  
+
+#### UI
+When a user clicks on the seek bar, we want to update the seek position of the track. This is achieved using the `onSeek` callback.
+
+### Making track progress bar functional
+
+  * Set `max` prop to length of track via: `max={duration ? duration.toFixed(2) : 0}`.
+  * Need to add new state to track whether user is currently seeking via `isSeeking`.
+    * `onChangeStart` callback to set `isSeeking` to `true`, i.e. started seeking.
+    * `onChangeEnd` callback to set `isSeeking` to `false` , i.e. finished seeking.
+
+## Update UI when changing songs or current song continues to play
+
+**Strategy used**: Have a watcher that monitors a certain value, and then on some interval, re-render. This strategy has been implemented using [request animation frame](https://www.pluralsight.com/guides/how-to-use-requestanimationframe-with-react).
+
+We only want this strategy to update the UI when:
+
+* Music is currently playing.
+* User is not currently seeking.
+
+### Implementation
+
+  * Use the `useEffect` hook to do the watching.
+    * Takes a callback with two parameters to monitor `playing` and `isSeeking` states.
+    * `requestAnimation` returns a `timeId` you can you use to cancel watching later on.
+    * If playing and not seeking, then create a function `f`  that calls `setSeek` to set its value to current position of progress of the song (binding). This will ensure progress bar of current playing track is constantly updated with the interval.
+    * If not playing or seeking, then cancel the UI update.
