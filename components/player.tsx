@@ -1,73 +1,107 @@
-import React from "react";
-import { Box, Center, Flex, Text } from "@chakra-ui/layout";
-import ReactHowler from "react-howler";
 import {
   ButtonGroup,
+  Box,
   IconButton,
   RangeSlider,
   RangeSliderFilledTrack,
-  RangeSliderThumb,
   RangeSliderTrack,
+  RangeSliderThumb,
+  Center,
+  Flex,
+  Text,
 } from "@chakra-ui/react";
+import ReactHowler from "react-howler";
+import { useEffect, useRef, useState } from "react";
 import {
-  MdOutlinePauseCircleFilled,
-  MdOutlinePlayCircle,
-  MdOutlinePlayCircleFilled,
-  MdRepeat,
   MdShuffle,
-  MdSkipNext,
   MdSkipPrevious,
-} from "react-icons/all";
+  MdSkipNext,
+  MdOutlinePlayCircleFilled,
+  MdOutlinePauseCircleFilled,
+  MdOutlineRepeat,
+} from "react-icons/md";
+import { useStoreActions } from "easy-peasy";
 
-const Player = () => {
+const Player = ({ songs, activeSong }) => {
+  const [playing, setPlaying] = useState(true);
+  const [index, setIndex] = useState(0);
+  const [seek, setSeek] = useState(0.0);
+  const [repeat, setRepeat] = useState(false);
+  const [shuffle, setShuffle] = useState(false);
+  const [duration, setDuration] = useState(0.0);
+
+  const setPlayState = (value) => {
+    setPlaying(value);
+  };
+
+  const onShuffle = () => {
+    setShuffle((state) => !state);
+  };
+
+  const onRepeat = () => {
+    setRepeat((state) => !state);
+  };
+
   return (
     <Box>
-      <Box>{/* <ReactHowler /> */}</Box>
+      <Box>
+        <ReactHowler playing={playing} src={activeSong?.url} />
+      </Box>
       <Center color="gray.600">
         <ButtonGroup>
           <IconButton
+            outline="none"
+            variant="link"
             aria-label="shuffle"
+            fontSize="24px"
+            color={shuffle ? "white" : "gray.600"}
+            onClick={onShuffle}
             icon={<MdShuffle />}
-            outline="none"
-            variant="link"
-            fontSize="24px"
           />
           <IconButton
+            outline="none"
+            variant="link"
             aria-label="skip"
+            fontSize="24px"
             icon={<MdSkipPrevious />}
+          />
+          {playing ? (
+            <IconButton
+              outline="none"
+              variant="link"
+              aria-label="pause"
+              fontSize="40px"
+              color="white"
+              icon={<MdOutlinePauseCircleFilled />}
+              onClick={() => setPlayState(false)}
+            />
+          ) : (
+            <IconButton
+              outline="none"
+              variant="link"
+              aria-label="play"
+              fontSize="40px"
+              color="white"
+              icon={<MdOutlinePlayCircleFilled />}
+              onClick={() => setPlayState(true)}
+            />
+          )}
+
+          <IconButton
             outline="none"
             variant="link"
-            fontSize="24px"
-          />
-          <IconButton
-            aria-label="play"
-            icon={<MdOutlinePlayCircleFilled />}
-            outline="none"
-            variant="link"
-            fontSize="40px"
-            color="white"
-          />
-          <IconButton
-            aria-label="pause"
-            icon={<MdOutlinePauseCircleFilled />}
-            outline="none"
-            variant="link"
-            fontSize="40px"
-            color="white"
-          />
-          <IconButton
             aria-label="next"
-            icon={<MdSkipNext />}
-            outline="none"
-            variant="link"
             fontSize="24px"
+            icon={<MdSkipNext />}
           />
           <IconButton
-            aria-label="repeat"
-            icon={<MdRepeat />}
             outline="none"
             variant="link"
+            aria-label="repeat"
             fontSize="24px"
+            color={repeat ? "white" : "gray.600"}
+            onClick={onRepeat}
+            icon={<MdOutlineRepeat />}
           />
         </ButtonGroup>
       </Center>
@@ -92,7 +126,7 @@ const Player = () => {
             </RangeSlider>
           </Box>
           <Box width="10%" textAlign="right">
-            <Text fontSize="xs">3:21</Text>
+            <Text fontSize="xs">321</Text>
           </Box>
         </Flex>
       </Box>
