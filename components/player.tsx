@@ -21,17 +21,97 @@ import {
   MdOutlineRepeat,
 } from "react-icons/md";
 import { useStoreActions } from "easy-peasy";
+import { formatTime } from "../lib/formatters";
 
 const Player = ({ songs, activeSong }) => {
   const [playing, setPlaying] = useState(true);
   const [index, setIndex] = useState(0);
   const [seek, setSeek] = useState(0.0);
+  const [isSeeking, setIsSeeking] = useState(false);
   const [repeat, setRepeat] = useState(false);
   const [shuffle, setShuffle] = useState(false);
   const [duration, setDuration] = useState(0.0);
+  const soundRef = useRef(null);
+
+  useEffect(() => {
+    let timerId;
+
+    if (playing && !isSeeking) {
+      const f = () => {
+        setSeek(soundRef.current.seek());
+        timerId = requestAnimationFrame(f);
+      };
+
+      timerId = requestAnimationFrame(f);
+      return () => cancelAnimationFrame(timerId);
+    }
+
+    cancelAnimationFrame(timerId);
+  }, [playing, isSeeking]);
 
   const setPlayState = (value) => {
     setPlaying(value);
+  };
+
+  /* Setting previous track callback
+   * Check if current song is the first in array
+   * if so, set index to last song in array (0 is falsy)
+   * if not, set index to previous song in array
+   * */
+  const prevSong = () => {
+    setIndex((state) => {
+      return state ? state - 1 : songs.length - 1;
+    });
+  };
+
+  /* Setting next track callback
+   * Check if shuffle is enabled
+   * if so, set index to random song in array
+   * check if new index is not same as current song's index
+   * if not. set the new index, otherwise recall function via recursion
+   * if shuffle is not enabled, set index to next song in array
+   * */
+  const nextSong = () => {
+    setIndex((state) => {
+      if (shuffle) {
+        const next = Math.floor(Math.random() * songs.length);
+
+        if (next === state) {
+          return nextSong();
+        }
+        return next;
+      }
+
+      return state === songs.length - 1 ? 0 : state + 1;
+    });
+  };
+
+  /*
+   * Current song finishes playing callback
+   * */
+  const onEnd = () => {
+    if (repeat) {
+      setSeek(0); // Update UI
+      soundRef.current.seek(0); // Functionality
+    } else {
+      nextSong(); // Play next song
+    }
+  };
+
+  /*
+   * Update current song's duration
+   */
+  const onLoad = () => {
+    const songDuration = soundRef.current.duration(); // Get song duration from howler
+    setDuration(songDuration); // Update UI
+  };
+
+  /*
+   * Update current song's seek
+   */
+  const onSeek = (e) => {
+    setSeek(parseFloat(e[0])); // Update UI
+    soundRef.current.seek(e[0]); // Functionality
   };
 
   const onShuffle = () => {
@@ -45,7 +125,13 @@ const Player = ({ songs, activeSong }) => {
   return (
     <Box>
       <Box>
-        <ReactHowler playing={playing} src={activeSong?.url} />
+        <ReactHowler
+          playing={playing}
+          src={activeSong?.url}
+          ref={soundRef}
+          onLoad={onLoad}
+          onEnd={onEnd}
+        />
       </Box>
       <Center color="gray.600">
         <ButtonGroup>
@@ -64,6 +150,7 @@ const Player = ({ songs, activeSong }) => {
             aria-label="skip"
             fontSize="24px"
             icon={<MdSkipPrevious />}
+            onClick={prevSong}
           />
           {playing ? (
             <IconButton
@@ -93,6 +180,7 @@ const Player = ({ songs, activeSong }) => {
             aria-label="next"
             fontSize="24px"
             icon={<MdSkipNext />}
+            onClick={nextSong}
           />
           <IconButton
             outline="none"
@@ -109,15 +197,19 @@ const Player = ({ songs, activeSong }) => {
       <Box color="gray.600">
         <Flex justify="center" align="center">
           <Box width="10%">
-            <Text fontSize="xs">1:21</Text>
+            <Text fontSize="xs">{formatTime(seek)}</Text>
           </Box>
           <Box width="80%">
             <RangeSlider
               aria-label={["min", "max"]}
               step={0.1}
               min={0}
-              max={321}
+              max={duration ? duration.toFixed(2) : 0}
               id="player-range"
+              onChange={onSeek}
+              value={[seek]}
+              onChangeStart={() => setIsSeeking(true)}
+              onChangeEnd={() => setIsSeeking(false)}
             >
               <RangeSliderTrack bg="gray.800">
                 <RangeSliderFilledTrack bg="gray.600" />
@@ -126,7 +218,7 @@ const Player = ({ songs, activeSong }) => {
             </RangeSlider>
           </Box>
           <Box width="10%" textAlign="right">
-            <Text fontSize="xs">321</Text>
+            <Text fontSize="xs">{formatTime(duration)}</Text>
           </Box>
         </Flex>
       </Box>
