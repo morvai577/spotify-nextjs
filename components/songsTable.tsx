@@ -2,9 +2,18 @@ import { Box } from "@chakra-ui/layout";
 import { Table, Thead, Td, Tr, Tbody, Th, IconButton } from "@chakra-ui/react";
 import { BsFillPlayFill } from "react-icons/bs";
 import { AiOutlineClockCircle } from "react-icons/ai";
+import { useStoreActions } from "easy-peasy";
 import { formatDate, formatTime } from "../lib/formatters";
 
 const SongsTable = ({ songs }) => {
+  const playSongs = useStoreActions((store: any) => store.changeActiveSongs);
+  const setActiveSong = useStoreActions((store: any) => store.changeActiveSong);
+
+  const handlePlay = (activeSong?) => {
+    setActiveSong(activeSong || songs[0]); // If clicked a particular song then set it as activeSong otherwise user clicked playlist green button and in that case set first song in playlist as activeSong
+    playSongs(songs);
+  };
+
   return (
     <Box bg="transparent" color="white">
       <Box padding="10px" marginBottom="20px">
@@ -15,6 +24,7 @@ const SongsTable = ({ songs }) => {
             colorScheme="green"
             size="lg"
             isRound
+            onClick={() => handlePlay()} // Callback to prevent default event being used as active song...plays first song in playlist
           />
         </Box>
 
@@ -43,7 +53,8 @@ const SongsTable = ({ songs }) => {
                   },
                 }}
                 key={song.id}
-                cursor="cursor"
+                cursor="pointer"
+                onClick={() => handlePlay(song)} // Play this song
               >
                 <Td>{i + 1}</Td>
                 <Td>{song.name}</Td>

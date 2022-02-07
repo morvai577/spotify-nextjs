@@ -270,6 +270,16 @@ const MyApp = ({ Component, pageProps }) => {
           ...
 ```
 
+#### Example use of global state: Adding songs to `activeSongs`
+When a user clicks big play button in a playlist, we want to add all the songs in the playlist to `activeSongs`, so we want to send these songs to the store. This is done in the songsTable
+
+Then we can retrieve this global state in our `player` component to get this data.
+
+#### Example 2 use of global state: Play a song from a playlist
+When a user clicks on a song in a playlist, we want to play  it, add it to `activeSongs`, so we want to send this song and its playlist to the store. This is done in the songsTable.
+
+Then we can retrieve this global state in our `player` component to get this data.
+
 ### How the applications actually plays music
 
 This is abstracted and handled by [react-howler](https://khoanguyen.me/react-howler/).
