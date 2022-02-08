@@ -365,3 +365,27 @@ We only want this strategy to update the UI when:
     * `requestAnimation` returns a `timeId` you can you use to cancel watching later on.
     * If playing and not seeking, then create a function `f`  that calls `setSeek` to set its value to current position of progress of the song (binding). This will ensure progress bar of current playing track is constantly updated with the interval.
     * If not playing or seeking, then cancel the UI update.
+
+## Set active song (current song) using an index and easy-peasy
+
+A change in index, will trigger a state change through easy-peasy (see `setActiveSong`) and in return re-render the `player` component with the new active song.
+
+A song changes:
+
+* On end
+* On previous
+* On next
+
+To monitor when the song changes i.e. the index changes, `useEffect` has been used in the implementation, to update the active song.
+
+## Deployment
+
+Project has been deployed to vercel. The default build command needs to be overriden with the following instead:
+`npx prisma generate && npx prisma migrate deploy && next build`.
+
+Need to also pass in database connection strings via environmental variables.
+
+Tips:
+
+* [Ignore ESLint errors](https://nextjs.org/docs/api-reference/next.config.js/ignoring-eslint)
+* [Ignore TS errors](https://nextjs.org/docs/api-reference/next.config.js/ignoring-typescript-errors)
