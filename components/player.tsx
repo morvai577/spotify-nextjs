@@ -25,14 +25,21 @@ import { formatTime } from "../lib/formatters";
 
 const Player = ({ songs, activeSong }) => {
   const [playing, setPlaying] = useState(true);
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(
+    songs.findIndex((s) => s.id === activeSong.id)
+  );
   const [seek, setSeek] = useState(0.0);
   const [isSeeking, setIsSeeking] = useState(false);
   const [repeat, setRepeat] = useState(false);
   const [shuffle, setShuffle] = useState(false);
   const [duration, setDuration] = useState(0.0);
   const soundRef = useRef(null);
+  const repeatRef = useRef(repeat); // Used to avoid closure
+  const setActiveSong = useStoreActions((state: any) => state.changeActiveSong);
 
+  /*
+   * Monitor playing and isSeeking state to update progress bar of current playing song
+   * */
   useEffect(() => {
     let timerId;
 
@@ -52,6 +59,20 @@ const Player = ({ songs, activeSong }) => {
   const setPlayState = (value) => {
     setPlaying(value);
   };
+
+  /*
+   * Monitor if song has changed
+   * */
+  useEffect(() => {
+    setActiveSong(songs[index]);
+  }, [index, setActiveSong, songs]);
+
+  /*
+   * Keep repeat state and repeatRef in sync
+   */
+  useEffect(() => {
+    repeatRef.current = repeat;
+  }, [repeat]);
 
   /* Setting previous track callback
    * Check if current song is the first in array
@@ -90,7 +111,7 @@ const Player = ({ songs, activeSong }) => {
    * Current song finishes playing callback
    * */
   const onEnd = () => {
-    if (repeat) {
+    if (repeatRef.current) {
       setSeek(0); // Update UI
       soundRef.current.seek(0); // Functionality
     } else {
@@ -204,7 +225,7 @@ const Player = ({ songs, activeSong }) => {
               aria-label={["min", "max"]}
               step={0.1}
               min={0}
-              max={duration ? duration.toFixed(2) : 0}
+              max={duration ? (duration.toFixed(2) as unknown as number) : 0}
               id="player-range"
               onChange={onSeek}
               value={[seek]}
